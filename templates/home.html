@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Домашняя страница</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Добро пожаловать, {{ user['name'] }}!</h1>
+        <div class="user-info">
+            <p><strong>Телефон:</strong> {{ user['phone'] }}</p>
+            <p><strong>Почта:</strong> {{ user['email'] }}</p>
+            <p><strong>Рост:</strong> {{ user['growth'] }} см</p>
+            <p><strong>Вес:</strong> {{ user['weight'] }} кг</p>
+        </div>
+        <form method="POST" class="update-form">
+            <h2>Обновить данные</h2>
+            <label for="growth">Рост (см):</label>
+            <input type="number" id="growth" name="growth" value="{{ user['growth'] }}" required>
+
+            <label for="weight">Вес (кг):</label>
+            <input type="number" id="weight" name="weight" value="{{ user['weight'] }}" required>
+
+            <button type="submit">Сохранить изменения</button>
+        </form>
+        <div class="navigation">
+            <a href="/dashboard" class="button">
+                <i class="icon-dashboard"></i> Перейти к Dashboard
+            </a>
+            <a href="/logout" class="button logout">
+                <i class="icon-logout"></i> Выйти
+            </a>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Графики</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+</head>
+<body>
+    <div class="dashboard-container">
+        <h1>График и история данных: {{ user_name }}</h1>
+        <form method="POST" class="stats-form" id="statsForm">
+            <h2>Добавить данные</h2>
+            <label for="pulse">Пульс:</label>
+            <input type="number" id="pulse" name="pulse" required>
+            <div id="pulseError" class="error-message" style="display: none;"></div>
+
+            <label for="systolic">Систолическое давление:</label>
+            <input type="number" id="systolic" name="systolic" required>
+            <div id="systolicError" class="error-message" style="display: none;"></div>
+
+            <label for="diastolic">Диастолическое давление:</label>
+            <input type="number" id="diastolic" name="diastolic" required>
+            <div id="diastolicError" class="error-message" style="display: none;"></div>
+
+            <label for="temperature">Температура:</label>
+            <input type="number" step="0.1" id="temperature" name="temperature" required>
+            <div id="temperatureError" class="error-message" style="display: none;"></div>
+
+            <label for="sugar_level">Уровень сахара:</label>
+            <input type="number" step="0.1" id="sugar_level" name="sugar_level" required>
+            <div id="sugarLevelError" class="error-message" style="display: none;"></div>
+
+            <label for="description">Описание:</label>
+            <textarea id="description" name="description"></textarea>
+
+            <button type="submit" id="submitBtn" disabled>Отправить</button>
+        </form>
+
+<div class="navigation">
+    <a href="/home" class="button home">
+        <i class="icon-home"></i> Домашняя страница
+    </a>
+    <a href="/logout" class="button logout">
+        <i class="icon-logout"></i> Выйти
+    </a>
+</div>
+
+        <h2>История данных</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Дата и время</th>
+                    <th>Пульс</th>
+                    <th>Систолическое давление</th>
+                    <th>Диастолическое давление</th>
+                    <th>Температура</th>
+                    <th>Уровень сахара</th>
+                    <th>Описание</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stat in stats %}
+                <tr>
+                    <td>{{ stat.timestamp }}</td>
+                    <td>{{ stat.pulse }}</td>
+                    <td>{{ stat.systolic }}</td>
+                    <td>{{ stat.diastolic }}</td>
+                    <td>{{ stat.temperature }}</td>
+                    <td>{{ stat.sugar_level }}</td>
+                    <td>{{ stat.description }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+<iframe src="http://localhost:3000/d-solo/de7xpy77i4b9cd/dash-1?orgId=1&from=1735092117103&to=1735121908071&timezone=browser&refresh=5s&panelId=1&__feature.dashboardSceneSolo" width="450" height="200" frameborder="0"></iframe>
+        <iframe src="http://localhost:3000/d-solo/be7xqbpdeoe80c/dash-2?orgId=1&from=1735077221619&to=1735136803555&timezone=browser&refresh=5s&tab=queries&panelId=1&__feature.dashboardSceneSolo" width="450" height="200" frameborder="0"></iframe>
+<iframe src="http://localhost:3000/d-solo/ee7z29pvqf5kwd/sugar-id-5?orgId=1&from=1735100664206&to=1735122264206&timezone=browser&panelId=1&__feature.dashboardSceneSolo" width="450" height="200" frameborder="0"></iframe>
+
+
+        <div>
+    <h2>График показателей</h2>
+    <div id="graph-container">
+        {{ plot_html|safe }}
+    </div>
+</div>
+    </div>
+
+    <script>
+        // Общая функция для валидации поля
+// Общая функция для валидации поля
+function validateField(fieldId, errorId, validationFunc, errorMessage) {
+    const field = document.getElementById(fieldId);
+    const errorElement = document.getElementById(errorId);
+
+    if (!validationFunc(field.value)) {
+        field.classList.add('error');
+        errorElement.textContent = errorMessage;
+        errorElement.style.display = 'block';  // Отображаем сообщение об ошибке
+        return false;
+    } else {
+        field.classList.remove('error');
+        errorElement.textContent = '';
+        errorElement.style.display = 'none';  // Скрываем сообщение об ошибке
+        return true;
+    }
+}
+
+// Мгновенная валидация при вводе данных
+function addInputValidation(fieldId, errorId, validationFunc, errorMessage) {
+    const field = document.getElementById(fieldId);
+    field.addEventListener('input', () => {
+        const valid = validateField(fieldId, errorId, validationFunc, errorMessage);
+        toggleSubmitButton(); // Проверяем статус кнопки отправки
+    });
+}
+
+// Проверка состояния кнопки отправки
+function toggleSubmitButton() {
+    const formFields = [
+        'pulse', 'systolic', 'diastolic', 'temperature', 'sugar_level'
+    ];
+    const allValid = formFields.every(fieldId => {
+        const field = document.getElementById(fieldId);
+        return !field.classList.contains('error') && field.value !== '';
+    });
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.disabled = !allValid;
+}
+
+// Настройка валидации при отправке формы
+document.getElementById('statsForm').addEventListener('submit', function (event) {
+    let valid = true;
+
+    // Правила валидации
+    valid &= validateField(
+        'pulse',
+        'pulseError',
+        (value) => value !== '' && value >= 40 && value <= 300,
+        'Пульс должен быть в диапазоне от 40 до 300.'
+    );
+
+    valid &= validateField(
+        'systolic',
+        'systolicError',
+        (value) => value !== '' && value >= 50 && value <= 250,
+        'Систолическое давление должно быть в диапазоне от 50 до 250.'
+    );
+
+    valid &= validateField(
+        'diastolic',
+        'diastolicError',
+        (value) => value !== '' && value >= 30 && value <= 150,
+        'Диастолическое давление должно быть в диапазоне от 30 до 150.'
+    );
+
+    valid &= validateField(
+        'temperature',
+        'temperatureError',
+        (value) => value !== '' && value >= 30 && value <= 45,
+        'Температура должна быть в диапазоне от 30.0 до 45.0.'
+    );
+
+    valid &= validateField(
+        'sugar_level',
+        'sugarLevelError',
+        (value) => value !== '' && value >= 0,
+        'Уровень сахара должен быть неотрицательным.'
+    );
+
+    // Если валидация не пройдена, отменяем отправку формы
+    if (!valid) {
+        event.preventDefault();
+    }
+});
+
+// Добавление мгновенной валидации для всех полей
+addInputValidation(
+    'pulse',
+    'pulseError',
+    (value) => value !== '' && value >= 40 && value <= 300,
+    'Пульс должен быть в диапазоне от 40 до 300.'
+);
+
+addInputValidation(
+    'systolic',
+    'systolicError',
+    (value) => value !== '' && value >= 50 && value <= 250,
+    'Систолическое давление должно быть в диапазоне от 50 до 250.'
+);
+
+addInputValidation(
+    'diastolic',
+    'diastolicError',
+    (value) => value !== '' && value >= 30 && value <= 150,
+    'Диастолическое давление должно быть в диапазоне от 30 до 150.'
+);
+
+addInputValidation(
+    'temperature',
+    'temperatureError',
+    (value) => value !== '' && value >= 30 && value <= 45,
+    'Температура должна быть в диапазоне от 30.0 до 45.0.'
+);
+
+addInputValidation(
+    'sugar_level',
+    'sugarLevelError',
+    (value) => value !== '' && value >= 0,
+    'Уровень сахара должен быть неотрицательным.'
+);
+
+        // Очистить поля формы при загрузке страницы
+window.addEventListener('load', function() {
+    const form = document.getElementById('statsForm');
+    form.reset();  // Очистить все поля формы
+});
+
+
+    </script>
+</body>
+</html>

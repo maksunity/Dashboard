@@ -1,0 +1,79 @@
+mat/
+
+# Системные файлы
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Логи и отладочные файлы
+*.log
+*.out
+*.err
+debug.log
+
+# Файлы виртуального окружения
+venv/
+ENV/
+env/
+.venv/
+.virtualenv/
+
+# Файлы зависимостей
+pip-log.txt
+pip-delete-this-directory.txt
+*.whl
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Конфигурационные файлы и данные
+.env
+.env.*
+*.ini
+*.cfg
+*.toml
+
+# Файлы IDE и редакторов
+.idea/
+.vscode/
+*.iml
+
+# Тестирование
+.tox/
+.nox/
+coverage.xml
+*.cover
+htmlcov/
+.cache/
+nosetests.xml
+pytest_cache/
+junit.xml
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# Сгенерированные файлы
+*.manifest
+*.spec
+
+# Файлы профилирования
+*.prof
+*.dat
+*.dSYM/
+
+# Docker и контейнеры
+docker-compose.override.yml
+
+# Бинарные файлы и архивы
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.tar
+*.tar.gz
+*.zip
+*.rar
+
+# Сторонние библиотеки
+site-packages/
